@@ -1,5 +1,5 @@
 const express = require('express')
-const pool = require('./config/database')
+const pool = require('./server.js')
 
 const app = express()
 app.use(express.json())
@@ -215,3 +215,5 @@ app.delete('/produtos/:id', async (req, res) => {
         })
     }
 })
+
+module.exports = app;
