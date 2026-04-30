@@ -13,6 +13,17 @@ const queryAsync = (sql, values = []) => {
     })
 }
 
+function ValidarIdProduto(id, res){
+    if(!id || isNaN(id)){
+        return res.status(400).json({
+            sucesso: false,
+            mensagem: 'ID de produto inválido'
+        });
+        return false
+    }
+    return true
+}
+
 app.get('/', (req, res) => {
     res.send("Restaurante Sabor & Saber")
 })
@@ -39,12 +50,7 @@ app.get('/produtos/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        if(!id || isNaN(id)){
-            return res.status(400).json({
-                sucesso: false,
-                mensagem: 'ID de produto inválido'
-            });
-        }
+        if(!ValidarIdProduto(id, res)) return
 
         const produto = await queryAsync('SELECT * FROM produto WHERE id = ?', [id]);
 
@@ -54,7 +60,6 @@ app.get('/produtos/:id', async (req, res) => {
                 mensagem: 'Produto não encontrado'
             });
         }
-
         res.json({
             sucesso: true,
             dados: sala[0]
