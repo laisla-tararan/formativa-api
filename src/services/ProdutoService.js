@@ -34,7 +34,7 @@ class ProdutoService {
     }
 
     async cadastrarProduto(dados){
-        const {nome, descricao, preco, categoria, disponivel} = dados
+        const {nome, descricao, preco, categoria, disponivel, imagem} = dados
 
         if(!nome || !descricao || preco === undefined){
             throw{
@@ -43,11 +43,11 @@ class ProdutoService {
             }
         }
 
-        if(typeof preco !== 'number' || preco <= 0){
-            throw{
+        if (isNaN(preco) || Number(preco) <= 0) {
+            throw {
                 status: 400,
-                mensagem: 'Preço deve ser um número positivo.'
-            }
+                mensagem: "Preço deve ser um número positivo",
+            };
         }
 
         const novoProduto = {
@@ -55,7 +55,8 @@ class ProdutoService {
             descricao: descricao.trim(),
             preco,
             categoria: categoria || null, 
-            disponivel: disponivel || true 
+            disponivel: disponivel !== undefined ? disponivel : true,
+            imagem: imagem || null
         }
 
         const resultado = await ProdutoRepository.cadastrarProduto(novoProduto)
@@ -63,7 +64,7 @@ class ProdutoService {
         return{
             sucesso: true,
             mensagem: 'Produto cadastrado com sucesso.',
-            resultado
+            id: resultado
         }
     }
 
@@ -86,21 +87,22 @@ class ProdutoService {
 
         const produtoAtualizado = {}
 
-        const {nome, descricao, preco, categoria, disponivel} = dados
+        const {nome, descricao, preco, categoria, disponivel, imagem} = dados
 
         if(nome !== undefined || nome.trim() !== '') produtoAtualizado.nome = nome.trim()
         if(descricao !== undefined) produtoAtualizado.descricao = descricao.trim()
         if(preco !== undefined) {
-            if(typeof preco !== 'number' || preco <= 0){
-                throw{
+            if (isNaN(preco) || Number(preco) <= 0) {
+                throw {
                     status: 400,
-                    mensagem: 'Preço deve ser um número positivo.'
-                }
+                    mensagem: "Preço deve ser um número positivo",
+                };
             }
-            produtoAtualizado.preco = preco
+            produtoAtualizado.preco = Number(preco)
         }
         if(categoria !== undefined) produtoAtualizado.categoria = categoria
         if(disponivel !== undefined) produtoAtualizado.disponivel = disponivel
+        if (imagem !== undefined) produtoAtualizado.imagem = imagem;
 
         if(Object.keys(produtoAtualizado).length === 0){
             throw{

@@ -2,16 +2,20 @@ const pool = require('../config/database')
 
 class ProdutoRepository{
     async listarProdutos(){
-        const listaProdutos = await pool.query('SELECT * FROM produto') //faz a conexão com os dados do banco de dados.
+        const [listaProdutos] = await pool.query('SELECT * FROM produto')
+        console.log(listaProdutos) //faz a conexão com os dados do banco de dados.
         return listaProdutos
     }
     async buscarProdutoPorId(id){
         const mostrarProduto = await pool.query('SELECT * FROM produto WHERE id = ?', [id])
-        return mostrarProduto[0]
+        return mostrarProduto
     }
     async cadastrarProduto(dadosDoProduto){
-        const resultadoDoCadastro = await pool.query('INSERT INTO produto SET ?', [dadosDoProduto])
-        return resultadoDoCadastro.insertId
+        const [resultadoDoCadastro] = await pool.query(
+            'INSERT INTO produto SET ?',
+            [dadosDoProduto]
+        );
+        return resultadoDoCadastro.insertId;
     }
     async atualizarProduto(id, dadosDoProduto){
         const camposProduto = []
@@ -33,7 +37,7 @@ class ProdutoRepository{
         return resultado.affectedRows
     }
     async apagarProduto(id){
-        const produtoExcluido =  await pool.query('DELETE FROM produto WHERE id = ?')
+        const produtoExcluido =  await pool.query('DELETE FROM produto WHERE id = ?', [id])
         return true
     }
 }
