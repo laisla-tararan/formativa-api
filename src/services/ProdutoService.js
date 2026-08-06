@@ -68,55 +68,64 @@ class ProdutoService {
         }
     }
 
-    async atualizarProduto(id, dados){
-        if(!id || isNaN(id)){
-            throw{
-                status: 400, //quando não é fornecido pelo usuário.
+    async atualizarProduto(id, dados = {}) {        
+        if (!id || isNaN(id)) {
+            throw {
+                status: 400,
                 mensagem: 'ID inválido.'
-            }
+            };
         }
 
-        const produtoId = await ProdutoRepository.buscarProdutoPorId(id)
+        const produtoId = await ProdutoRepository.buscarProdutoPorId(id);
 
-        if(!produtoId){
-            throw{
-                status: 404, //quando não existe, não é encontrado.
+        if (!produtoId) {
+            throw {
+                status: 404,
                 mensagem: 'Produto não encontrado.'
-            }
+            };
         }
 
-        const produtoAtualizado = {}
+        // 1. Extração das propriedades de 'dados' (evita que fiquem 'undefined')
+        const { nome, descricao, preco, categoria, disponivel, imagem } = dados;
 
-        const {nome, descricao, preco, categoria, disponivel, imagem} = dados
+        const produtoAtualizado = {};
 
-        if(nome !== undefined || nome.trim() !== '') produtoAtualizado.nome = nome.trim()
-        if(descricao !== undefined) produtoAtualizado.descricao = descricao.trim()
-        if(preco !== undefined) {
+        // 2. Validações ajustadas de forma segura com '&&'
+        if (nome !== undefined && nome !== null && nome.trim() !== '') {
+            produtoAtualizado.nome = nome.trim();
+        }
+
+        if (descricao !== undefined && descricao !== null) {
+            produtoAtualizado.descricao = descricao.trim();
+        }
+
+        if (preco !== undefined && preco !== null && preco !== '') {
             if (isNaN(preco) || Number(preco) <= 0) {
                 throw {
                     status: 400,
                     mensagem: "Preço deve ser um número positivo",
                 };
             }
-            produtoAtualizado.preco = Number(preco)
+            produtoAtualizado.preco = Number(preco);
         }
-        if(categoria !== undefined) produtoAtualizado.categoria = categoria
-        if(disponivel !== undefined) produtoAtualizado.disponivel = disponivel
-        if (imagem !== undefined) produtoAtualizado.imagem = imagem;
 
-        if(Object.keys(produtoAtualizado).length === 0){
-            throw{
+        if (categoria !== undefined) produtoAtualizado.categoria = categoria;
+        if (disponivel !== undefined) produtoAtualizado.disponivel = disponivel;
+        if (imagem !== undefined && imagem !== null) produtoAtualizado.imagem = imagem;
+
+        if (Object.keys(produtoAtualizado).length === 0) {
+            throw {
                 status: 400,
                 mensagem: 'Nenhum dado válido enviado para atualização.'
-            }
+            };
         }
 
-        await ProdutoRepository.atualizarProduto(id, produtoAtualizado)
+        await ProdutoRepository.atualizarProduto(id, produtoAtualizado);
 
-        return{
+        return {
             sucesso: true,
             mensagem: 'Produto atualizado.'
-        }
+        };
     }
 
     async deletarProduto(id){

@@ -41,7 +41,7 @@ class ProdutoController{
     }
     async atualizarProduto(req, res){
         try {
-            const resultado = ProdutoService.atualizarProduto(req.params.id, req.body)
+            const resultado = await ProdutoService.atualizarProduto(req.params.id, { ...req.body, imagem: req.file ? req.file.filename : null })
             res.json(resultado)
         } catch (erro) {
             res.status(erro.status || 500).json({
